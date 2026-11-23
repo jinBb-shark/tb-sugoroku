@@ -1,269 +1,361 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>トロンボーンすごろく</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <style>
+/* Layout: tabletop room — header bar, board stage on the left, log + dice panel on the right (stacked below on phones). Single dark "table" look on purpose. */
 :root{
-  --bg:#fbf7ef; --ink:#2b2420; --muted:#7a6f66; --card:#ffffff; --line:#e3d9c9;
-  --accent:#b8860b; --accent-ink:#fff; --start:#e8f3e8; --goal:#fdeaea;
-  --fwd:#e6f0fb; --back:#fbe9e6; --rest:#f1ecfb; --again:#fff6d6;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#1d1a17; --ink:#f1ebe3; --muted:#a99d90; --card:#2a2622; --line:#40392f;
-    --accent:#d9a52b; --accent-ink:#1d1a17; --start:#24372a; --goal:#43282a;
-    --fwd:#22324a; --back:#46302b; --rest:#33294a; --again:#463d1f;
-  }
+  --table:#1b1c20; --panel:#25272d; --panel-2:#2f323a; --line:#3b3f48;
+  --ink:#ecebe6; --muted:#9a9ca4; --brass:#d9a92b; --brass-ink:#1b1c20;
+  --fwd:#4fb07a; --back:#e0675a; --rest:#8f7ae0;
+  --font:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font-family:"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.5}
-header{padding:16px 16px 8px;text-align:center}
-h1{margin:0;font-size:1.4rem;letter-spacing:.05em}
-header p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
-main{max-width:720px;margin:0 auto;padding:0 12px 120px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
-label{display:block;font-size:.9rem;margin:8px 0 4px}
-input[type=text]{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;
-  background:var(--bg);color:var(--ink);font-size:1rem}
-button{font:inherit;border:0;border-radius:10px;padding:12px 18px;cursor:pointer;
-  background:var(--accent);color:var(--accent-ink);font-weight:700}
-button.sub{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:400}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.board{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.sq{position:relative;min-height:74px;border-radius:10px;border:1px solid var(--line);
-  background:var(--card);padding:4px 5px 22px;font-size:.68rem;overflow:hidden;cursor:pointer}
-.sq .n{font-weight:700;font-size:.75rem;color:var(--muted)}
-.sq .t{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.sq.start{background:var(--start)} .sq.goal{background:var(--goal)}
-.sq.fwd{background:var(--fwd)} .sq.back{background:var(--back)}
-.sq.rest{background:var(--rest)} .sq.again{background:var(--again)}
-.sq.cur{outline:3px solid var(--accent)}
-.tokens{position:absolute;left:4px;bottom:4px;display:flex;gap:2px}
-.tok{width:14px;height:14px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
-.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
-  padding:10px 16px calc(10px + env(safe-area-inset-bottom));}
-.bar .in{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px}
-.die{width:52px;height:52px;border-radius:12px;border:2px solid var(--ink);display:grid;place-items:center;
-  font-size:1.6rem;font-weight:800;flex:none}
-.die.roll{animation:shake .5s}
-@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
-.turn{flex:1;font-size:.95rem}
-.turn b{display:inline-flex;align-items:center;gap:6px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
-.modal.on{display:flex}
-.modal .box{background:var(--card);border-radius:16px;padding:20px;max-width:420px;width:100%;text-align:center}
-.modal h2{margin:0 0 8px;font-size:1.1rem}
-.modal p{margin:0 0 16px;white-space:pre-wrap}
-.legend{display:flex;flex-wrap:wrap;gap:6px;font-size:.75rem;color:var(--muted);margin-top:8px}
-.legend span{padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
-.hidden{display:none}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--table);color:var(--ink);font-family:var(--font);font-weight:500;overflow:hidden}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+.app{height:100%;display:grid;grid-template-rows:auto 1fr;}
+header{display:flex;align-items:center;gap:12px;background:var(--panel);border-bottom:1px solid var(--line);
+  padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header h1{margin:0;font-size:1rem;font-weight:700;letter-spacing:.04em}
+header .room{font-size:.75rem;color:var(--muted)}
+header .sp{flex:1}
+.zoom{display:flex;gap:4px}
+.zoom button{background:var(--panel-2);color:var(--ink);width:34px;height:30px}
+
+.main{display:grid;grid-template-columns:1fr 320px;min-height:0}
+.stage{overflow:auto;min-width:0;min-height:0;padding:16px;touch-action:pan-x pan-y}
+.board{position:relative;margin:0 auto;width:calc(var(--z,1)*100%);max-width:none;user-select:none;-webkit-user-select:none;
+  box-shadow:0 12px 40px rgba(0,0,0,.55);border-radius:4px;overflow:hidden}
+.board img{display:block;width:100%;max-width:none;pointer-events:none}
+.hl{position:absolute;border-radius:10px;pointer-events:none}
+.hl.cur{box-shadow:0 0 0 3px var(--brass) inset;background:rgba(217,169,43,.12)}
+.hl.pick{box-shadow:0 0 0 3px #3fa9f5 inset;background:rgba(63,169,245,.18);pointer-events:auto;cursor:pointer;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{background:rgba(63,169,245,.32)}}
+.tok{position:absolute;width:3.4%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);display:grid;place-items:center;
+  font-weight:700;font-size:clamp(9px,1.1vw,15px);color:#fff;border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.5);
+  cursor:grab;touch-action:none;transition:left .22s ease,top .22s ease;z-index:2}
+.tok.drag{transition:none;cursor:grabbing;z-index:5;transform:translate(-50%,-50%) scale(1.15)}
+.tok.turn{outline:3px solid var(--brass);outline-offset:2px}
+.panel-note{position:absolute;left:3.6%;top:6%;width:21%;background:rgba(27,28,32,.88);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:clamp(9px,1vw,14px);line-height:1.6}
+.panel-note b{color:var(--brass)}
+
+aside{background:var(--panel);border-left:1px solid var(--line);display:grid;grid-template-rows:auto 1fr auto;min-height:0}
+.players{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;gap:6px}
+.pl{display:flex;align-items:center;gap:8px;font-size:.9rem;padding:4px 8px;border-radius:8px}
+.pl.now{background:var(--panel-2)}
+.pl .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.pl .st{margin-left:auto;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.log{overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.msg{font-size:.85rem;line-height:1.55}
+.msg .who{font-weight:700;font-size:.78rem}
+.msg .dice{display:inline-block;margin-top:2px;padding:2px 8px;border-radius:6px;background:var(--panel-2);font-variant-numeric:tabular-nums}
+.msg .dice b{color:var(--brass)}
+.msg.sys{color:var(--muted);font-size:.8rem}
+.ctrl{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.ctrl .turnlbl{flex:1;font-size:.85rem;min-width:0}
+.roll{background:var(--brass);color:var(--brass-ink);font-weight:700;padding:10px 16px;font-size:1rem}
+.roll:disabled{opacity:.4;cursor:default}
+
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(420px,100%);display:grid;gap:12px;text-align:center}
+.card h2{margin:0;font-size:1.1rem}
+.card canvas{width:100%;max-width:260px;margin:0 auto;border-radius:8px;background:#ddd}
+.eff{font-size:1.05rem;font-weight:700}
+.eff.fwd{color:var(--fwd)} .eff.back{color:var(--back)} .eff.rest{color:var(--rest)} .eff.other{color:var(--brass)}
+.ok{background:var(--brass);color:var(--brass-ink);font-weight:700;padding:10px}
+.setup label{display:flex;align-items:center;gap:8px;text-align:left;font-size:.9rem}
+.setup input{flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px;font:inherit}
+.counts{display:flex;gap:6px;justify-content:center}
+.counts button{background:var(--panel-2);color:var(--ink);padding:6px 12px}
+.counts button.on{background:var(--brass);color:var(--brass-ink);font-weight:700}
+.bigdie{font-size:3.4rem;font-weight:700;color:var(--brass);font-variant-numeric:tabular-nums}
+
+@media (max-width:820px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100%}
+  .main{grid-template-columns:1fr}
+  .stage{padding:8px;max-height:62vh}
+  .panel-note{display:none}
+  aside{border-left:0;border-top:1px solid var(--line);grid-template-rows:auto minmax(160px,32vh) auto}
+}
+@media (prefers-reduced-motion:reduce){.tok{transition:none}.hl.pick{animation:none}}
 </style>
-</head>
-<body>
-<header>
-  <h1>🎶 トロンボーンすごろく</h1>
-  <p>神戸大学応援団総部吹奏楽部 第59回定期演奏会</p>
-</header>
-<main>
-  <section class="panel" id="setup">
-    <div class="row" style="justify-content:space-between">
-      <strong>あそぶ人数</strong>
-      <div class="row" id="countBtns"></div>
+
+<div class="app">
+  <header>
+    <div>
+      <h1>トロンボーンすごろく</h1>
+      <div class="room">kUWO トロンボーンパート ・ 第59回定期演奏会 裏パン</div>
     </div>
-    <div id="nameInputs"></div>
-    <div style="margin-top:14px;text-align:center"><button id="startBtn">スタート！</button></div>
-  </section>
-
-  <section id="game" class="hidden">
-    <div class="board" id="board"></div>
-    <div class="legend">
-      <span style="background:var(--fwd)">すすむ</span>
-      <span style="background:var(--back)">もどる</span>
-      <span style="background:var(--rest)">1回休み</span>
-      <span style="background:var(--again)">もう1回</span>
+    <div class="sp"></div>
+    <div class="zoom" aria-label="盤面の拡大">
+      <button id="zOut" aria-label="縮小">−</button>
+      <button id="zIn" aria-label="拡大">＋</button>
     </div>
-    <div style="text-align:center;margin-top:16px"><button class="sub" id="resetBtn">最初からやり直す</button></div>
-  </section>
-</main>
+  </header>
+  <div class="main">
+    <div class="stage" id="stage">
+      <div class="board" id="board">
+        <img src="board.jpg" alt="トロンボーンすごろくの盤面" id="boardImg">
+        <div class="panel-note"><b>あそびかた</b><br>右下の「1D6」でサイコロを振ると、コマが自動で進みます。止まったマスのイベントに従ってください。コマはドラッグでも動かせます。</div>
+      </div>
+    </div>
+    <aside>
+      <div class="players" id="players"></div>
+      <div class="log" id="log" aria-live="polite"></div>
+      <div class="ctrl">
+        <div class="turnlbl" id="turnlbl"></div>
+        <button class="roll" id="rollBtn">1D6</button>
+      </div>
+    </aside>
+  </div>
+</div>
 
-<div class="bar hidden" id="bar"><div class="in">
-  <div class="die" id="die">🎲</div>
-  <div class="turn" id="turn"></div>
-  <button id="rollBtn">サイコロ</button>
-</div></div>
-
-<div class="modal" id="modal"><div class="box">
-  <h2 id="mTitle"></h2><p id="mBody"></p>
-  <button id="mOk">OK</button>
-</div></div>
+<div class="ov" id="setup">
+  <div class="card setup">
+    <h2>ルームに入る</h2>
+    <div class="counts" id="counts"></div>
+    <div id="names" style="display:grid;gap:8px"></div>
+    <button class="ok" id="startBtn">スタート</button>
+  </div>
+</div>
+<div class="ov" id="cut" hidden>
+  <div class="card">
+    <h2 id="cutTitle"></h2>
+    <canvas id="cutCanvas" width="520" height="520"></canvas>
+    <div class="eff" id="cutEff"></div>
+    <button class="ok" id="cutOk">OK</button>
+  </div>
+</div>
 
 <script>
-/* ===========================================================
-   ここを編集するとマスの内容が変わります
-   type: "fwd"=すすむ / "back"=もどる / "rest"=1回休み / "again"=もう1回 / なし=ふつう
-   n: すすむ・もどるマス数
-   ※ いまの内容は仮です。部員の情報に差し替えてください。
-   =========================================================== */
-const SQUARES = [
-  { text: "スタート", type: "start" },
-  { text: "入部おめでとう！トロンボーンパートへようこそ" },
-  { text: "（仮）〇〇さんの好きな食べ物はラーメン。2マスすすむ", type: "fwd", n: 2 },
-  { text: "（仮）スライドにグリスを塗り忘れた…1マスもどる", type: "back", n: 1 },
-  { text: "（仮）パート練習で〇〇さんがお菓子を配る" },
-  { text: "（仮）ロングトーンが10秒伸びた！もう1回サイコロ", type: "again" },
-  { text: "（仮）〇〇さんの出身地クイズ" },
-  { text: "（仮）マウスピースを家に忘れた。1回休み", type: "rest" },
-  { text: "（仮）〇〇さんの特技は？3マスすすむ", type: "fwd", n: 3 },
-  { text: "（仮）7ポジションが届かない！2マスもどる", type: "back", n: 2 },
-  { text: "（仮）合奏で褒められた" },
-  { text: "（仮）パート飲み会（ジュース）で盛り上がる。もう1回", type: "again" },
-  { text: "（仮）〇〇さんの口ぐせ" },
-  { text: "（仮）楽器ケースが重すぎる。1回休み", type: "rest" },
-  { text: "（仮）ハイB♭が出た！2マスすすむ", type: "fwd", n: 2 },
-  { text: "（仮）〇〇さんの好きな曲" },
-  { text: "（仮）ミュートを落として大きな音。3マスもどる", type: "back", n: 3 },
-  { text: "（仮）〇〇さんのマイブーム" },
-  { text: "（仮）グリッサンドがきれいに決まった。1マスすすむ", type: "fwd", n: 1 },
-  { text: "（仮）本番前の円陣！もう1回", type: "again" },
-  { text: "（仮）〇〇さんの意外な一面" },
-  { text: "（仮）譜めくりに失敗。2マスもどる", type: "back", n: 2 },
-  { text: "（仮）ゲネプロ。1回休み", type: "rest" },
-  { text: "（仮）〇〇さんからひとこと" },
-  { text: "ゴール！定期演奏会、本番です🎉", type: "goal" },
+/* ===== マスの定義（盤面画像 1370×960 上の位置）=====
+   r: マスの範囲 [x0,y0,x1,y1]
+   e: 効果  fwd=すすむ back=もどる rest=休み dice=サイコロの目だけすすむ warp=好きなマスへ home=ふりだし none=なにもないマス
+   ※左右の紙はつながっている前提（そうへい→なにもないマス→あおは）*/
+const BW=1370,BH=960;
+const SQ=[
+ {name:"START",r:[365,275,445,455],e:{k:"start"}},
+ {name:"ゆりゆり",r:[450,285,535,430],e:{k:"back",n:1}},
+ {name:"なにもないマス",r:[535,285,565,430],e:{k:"none"}},
+ {name:"そうへい",r:[565,285,650,430],e:{k:"back",n:3}},
+ {name:"なにもないマス",r:[700,280,740,425],e:{k:"none"}},
+ {name:"あおは",r:[740,280,830,425],e:{k:"back",n:4}},
+ {name:"なにもないマス",r:[830,280,860,425],e:{k:"none"}},
+ {name:"全体",r:[860,280,960,425],e:{k:"rest",n:1}},
+ {name:"なにもないマス",r:[960,280,995,425],e:{k:"none"}},
+ {name:"そうへい",r:[995,280,1095,425],e:{k:"dice"}},
+ {name:"なにもないマス",r:[1095,280,1135,425],e:{k:"none"}},
+ {name:"ちい",r:[1140,300,1310,440],e:{k:"fwd",n:6}},
+ {name:"かほ",r:[1140,460,1310,620],e:{k:"warp",n:10}},
+ {name:"ひろと",r:[1040,520,1135,675],e:{k:"back",n:2}},
+ {name:"なにもないマス",r:[995,520,1040,675],e:{k:"none"}},
+ {name:"ほりえ",r:[905,520,995,675],e:{k:"fwd",n:4}},
+ {name:"なにもないマス",r:[865,520,905,675],e:{k:"none"}},
+ {name:"あおは",r:[765,520,865,675],e:{k:"home"}},
+ {name:"なにもないマス",r:[705,520,765,675],e:{k:"none"}},
+ {name:"ふかみ",r:[565,535,655,685],e:{k:"rest",n:10}},
+ {name:"なにもないマス",r:[520,535,565,685],e:{k:"none"}},
+ {name:"きし",r:[430,535,520,685],e:{k:"rest",n:1}},
+ {name:"なにもないマス",r:[385,535,430,685],e:{k:"none"}},
+ {name:"くろちー",r:[295,535,385,685],e:{k:"back",n:2}},
+ {name:"なにもないマス",r:[250,535,295,685],e:{k:"none"}},
+ {name:"たにさら",r:[80,540,250,640],e:{k:"fwd",n:3}},
+ {name:"なにもないマス",r:[70,640,215,760],e:{k:"none"}},
+ {name:"けい",r:[70,760,225,900],e:{k:"fwd",n:1}},
+ {name:"けい・ひろと",r:[230,760,345,910],e:{k:"fwd",n:5}},
+ {name:"なにもないマス",r:[345,760,395,910],e:{k:"none"}},
+ {name:"かや",r:[395,760,485,910],e:{k:"back",n:2}},
+ {name:"のん",r:[485,760,570,910],e:{k:"fwd",n:2}},
+ {name:"のん",r:[570,760,660,910],e:{k:"back",n:5}},
+ {name:"なにもないマス",r:[715,750,760,910],e:{k:"none"}},
+ {name:"たにさら",r:[760,750,850,910],e:{k:"back",n:3}},
+ {name:"なにもないマス",r:[850,750,900,910],e:{k:"none"}},
+ {name:"さな",r:[900,750,990,910],e:{k:"fwd",n:3}},
+ {name:"なにもないマス",r:[990,750,1035,910],e:{k:"none"}},
+ {name:"りーさ",r:[1035,750,1125,910],e:{k:"rest",n:1}},
+ {name:"なにもないマス",r:[1125,750,1190,910],e:{k:"none"}},
+ {name:"GOAL",r:[1225,740,1320,900],e:{k:"goal"}},
 ];
+const GOAL=SQ.length-1;
+const COLORS=["#d64545","#2f7de1","#2fa36b","#c9871a"];
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let players=[],cur=0,busy=false,count=2,zoom=1,finishOrder=[];
 
-const COLORS = ["#d64545", "#2f7de1", "#2fa36b", "#e0a21b"];
-const $ = s => document.querySelector(s);
-const GOAL = SQUARES.length - 1;
-let count = 2, players = [], cur = 0, busy = false, finished = false;
+function effText(e){
+  return {fwd:`${e.n}マスすすむ`,back:`${e.n}マスもどる`,rest:`${e.n}回休み`,dice:"もう一度サイコロを振り、出た目の数すすむ",
+    warp:`${e.n}マス以内の好きなマスにワープ`,home:"ふりだしに戻る",goal:"ゴール！",start:"",none:""}[e.k];
+}
+function effClass(e){return e.k==="fwd"?"fwd":e.k==="back"||e.k==="home"?"back":e.k==="rest"?"rest":"other"}
+function center(i){const r=SQ[i].r;return[(r[0]+r[2])/2,(r[1]+r[3])/2+ (r[3]-r[1])*0.18]}
 
-/* ---------- 設定画面 ---------- */
+/* ---------- 設定 ---------- */
 function renderSetup(){
-  const cb = $("#countBtns"); cb.innerHTML = "";
-  [1,2,3,4].forEach(k=>{
-    const b = document.createElement("button");
-    b.textContent = k + "人"; b.className = k===count ? "" : "sub";
-    b.onclick = ()=>{ count = k; renderSetup(); };
-    cb.appendChild(b);
-  });
-  const ni = $("#nameInputs"); const old = [...ni.querySelectorAll("input")].map(i=>i.value);
-  ni.innerHTML = "";
+  const c=$("#counts");c.innerHTML="";
+  [1,2,3,4].forEach(k=>{const b=document.createElement("button");b.textContent=k+"人";b.className=k===count?"on":"";b.onclick=()=>{count=k;renderSetup()};c.appendChild(b)});
+  const n=$("#names");const old=[...n.querySelectorAll("input")].map(i=>i.value);n.innerHTML="";
   for(let i=0;i<count;i++){
-    const l = document.createElement("label");
-    l.innerHTML = `<span style="color:${COLORS[i]}">●</span> プレイヤー${i+1}`;
-    const inp = document.createElement("input"); inp.type="text";
-    inp.placeholder = `プレイヤー${i+1}`; inp.value = old[i] || "";
-    ni.append(l, inp);
+    const l=document.createElement("label");
+    l.innerHTML=`<span class="dot" style="width:14px;height:14px;border-radius:50%;background:${COLORS[i]};flex:none"></span>`;
+    const inp=document.createElement("input");inp.id="name"+i;inp.placeholder=`プレイヤー${i+1}`;inp.value=old[i]||"";inp.maxLength=8;
+    l.appendChild(inp);n.appendChild(l);
   }
 }
-$("#startBtn").onclick = ()=>{
-  const names = [...document.querySelectorAll("#nameInputs input")].map((i,k)=>i.value.trim()||`プレイヤー${k+1}`);
-  players = names.map((name,i)=>({name,color:COLORS[i],pos:0,rest:0,done:false}));
-  cur = 0; finished = false;
-  $("#setup").classList.add("hidden"); $("#game").classList.remove("hidden"); $("#bar").classList.remove("hidden");
-  $("#die").textContent = "🎲";
-  renderBoard(); renderTurn();
-};
-$("#resetBtn").onclick = ()=>{
-  $("#setup").classList.remove("hidden"); $("#game").classList.add("hidden"); $("#bar").classList.add("hidden");
+$("#startBtn").onclick=()=>{
+  players=[...document.querySelectorAll("#names input")].map((inp,i)=>({name:inp.value.trim()||`プレイヤー${i+1}`,color:COLORS[i],pos:0,rest:0,done:false}));
+  cur=0;finishOrder=[];$("#log").innerHTML="";$("#setup").hidden=true;
+  sys("ゲームを始めます。STARTからスタート！");
+  makeTokens();render();
 };
 
-/* ---------- 盤面 ---------- */
-function renderBoard(){
-  const b = $("#board"); b.innerHTML = "";
-  const cols = 5;
-  // 蛇行（ジグザグ）に並べる
-  const order = [];
-  for(let r=0; r*cols < SQUARES.length; r++){
-    const row = [];
-    for(let c=0;c<cols;c++){ const i=r*cols+c; if(i<SQUARES.length) row.push(i); }
-    if(r%2===1) row.reverse();
-    while(row.length<cols) r%2===1 ? row.unshift(-1) : row.push(-1);
-    order.push(...row);
-  }
-  order.forEach(i=>{
-    const d = document.createElement("div");
-    if(i<0){ b.appendChild(d); return; }
-    const s = SQUARES[i];
-    d.className = "sq " + (s.type||"");
-    if(players[cur] && players[cur].pos===i && !finished) d.classList.add("cur");
-    d.innerHTML = `<div class="n">${i===0?"S":i===GOAL?"G":i}</div><div class="t">${esc(s.text)}</div>`;
-    const t = document.createElement("div"); t.className="tokens";
-    players.forEach(p=>{ if(p.pos===i){ const k=document.createElement("span"); k.className="tok"; k.style.background=p.color; t.appendChild(k);} });
-    d.appendChild(t);
-    d.onclick = ()=>showModal(`${i===0?"スタート":i===GOAL?"ゴール":i+"マス目"}`, s.text);
-    b.appendChild(d);
+/* ---------- 描画 ---------- */
+function pct(x,y){return{left:x/BW*100+"%",top:y/BH*100+"%"}}
+function makeTokens(){
+  document.querySelectorAll(".tok").forEach(t=>t.remove());
+  players.forEach((p,i)=>{
+    const t=document.createElement("div");t.className="tok";t.style.background=p.color;t.textContent=[...p.name][0];t.title=p.name;t.id="tok"+i;
+    attachDrag(t,i);$("#board").appendChild(t);
   });
 }
-function renderTurn(){
-  if(finished){ $("#turn").innerHTML = "ゲーム終了！"; $("#rollBtn").disabled = true; return; }
-  const p = players[cur];
-  $("#turn").innerHTML = `<b><span class="tok" style="background:${p.color}"></span>${esc(p.name)}</b> の番`;
-  $("#rollBtn").disabled = false;
+function placeTokens(){
+  const groups={};players.forEach((p,i)=>{(groups[p.pos]=groups[p.pos]||[]).push(i)});
+  Object.entries(groups).forEach(([pos,ids])=>{
+    const [cx,cy]=center(+pos);
+    ids.forEach((id,k)=>{const off=(k-(ids.length-1)/2)*30;const t=$("#tok"+id);const p=pct(cx,cy+off);t.style.left=p.left;t.style.top=p.top});
+  });
+  players.forEach((p,i)=>$("#tok"+i).classList.toggle("turn",i===cur&&!busyEnd()));
+  if(zoom>1&&players[cur]){const st=$("#stage"),t=$("#tok"+cur),sb=st.getBoundingClientRect(),tb=t.getBoundingClientRect();st.scrollTo({left:st.scrollLeft+tb.left-sb.left-sb.width/2,top:st.scrollTop+tb.top-sb.top-sb.height/2,behavior:"smooth"})}
 }
-function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function busyEnd(){return players.every(p=>p.done)}
+function renderHL(){
+  document.querySelectorAll(".hl.cur").forEach(h=>h.remove());
+  if(!players.length||busyEnd())return;
+  const r=SQ[players[cur].pos].r;const h=document.createElement("div");h.className="hl cur";setRect(h,r);$("#board").appendChild(h);
+}
+function setRect(h,r){h.style.left=r[0]/BW*100+"%";h.style.top=r[1]/BH*100+"%";h.style.width=(r[2]-r[0])/BW*100+"%";h.style.height=(r[3]-r[1])/BH*100+"%"}
+function renderPlayers(){
+  const el=$("#players");el.innerHTML="";
+  players.forEach((p,i)=>{
+    const d=document.createElement("div");d.className="pl"+(i===cur&&!busyEnd()?" now":"");
+    const st=p.done?`${finishOrder.indexOf(i)+1}位でゴール`:p.rest?`休み あと${p.rest}回`:SQ[p.pos].name;
+    d.innerHTML=`<span class="dot" style="background:${p.color}"></span><span>${esc(p.name)}</span><span class="st">${esc(st)}</span>`;
+    el.appendChild(d);
+  });
+}
+function render(){
+  placeTokens();renderHL();renderPlayers();
+  const end=busyEnd();
+  $("#turnlbl").innerHTML=end?"ゲーム終了！":`<b style="color:${players[cur].color}">${esc(players[cur].name)}</b> の番`;
+  $("#rollBtn").disabled=busy||end;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
-/* ---------- モーダル ---------- */
-let onOk = null;
-function showModal(title, body, cb){
-  $("#mTitle").textContent = title; $("#mBody").textContent = body;
-  onOk = cb || null; $("#modal").classList.add("on");
+/* ---------- ログ ---------- */
+function addMsg(html,cls=""){const d=document.createElement("div");d.className="msg "+cls;d.innerHTML=html;$("#log").appendChild(d);$("#log").scrollTop=1e9}
+function sys(t){addMsg(esc(t),"sys")}
+function say(p,t){addMsg(`<div class="who" style="color:${p.color}">${esc(p.name)}</div>${t}`)}
+
+/* ---------- 演出 ---------- */
+const img=new Image();img.src="board.jpg";
+function cutin(title,i,eff){
+  return new Promise(res=>{
+    $("#cutTitle").textContent=title;
+    const cv=$("#cutCanvas"),ctx=cv.getContext("2d");const r=SQ[i].r;
+    const w=r[2]-r[0],h=r[3]-r[1],pad=14,s=Math.min((cv.width-2*pad)/w,(cv.height-2*pad)/h);
+    ctx.fillStyle="#ddd";ctx.fillRect(0,0,cv.width,cv.height);
+    try{ctx.drawImage(img,r[0],r[1],w,h,(cv.width-w*s)/2,(cv.height-h*s)/2,w*s,h*s)}catch(e){}
+    const ef=$("#cutEff");ef.textContent=eff?effText(eff):"";ef.className="eff "+(eff?effClass(eff):"");
+    $("#cut").hidden=false;$("#cutOk").focus();
+    $("#cutOk").onclick=()=>{$("#cut").hidden=true;res()};
+  });
 }
-$("#mOk").onclick = ()=>{ $("#modal").classList.remove("on"); const f=onOk; onOk=null; if(f) f(); };
+async function rollDie(p,label="1D6"){
+  const ov=document.createElement("div");ov.className="ov";ov.innerHTML=`<div class="card"><div class="bigdie">⚀</div></div>`;document.body.appendChild(ov);
+  const faces="⚀⚁⚂⚃⚄⚅";const el=ov.querySelector(".bigdie");
+  for(let k=0;k<8;k++){el.textContent=faces[Math.floor(Math.random()*6)];await sleep(55)}
+  const n=1+Math.floor(Math.random()*6);el.textContent=faces[n-1];await sleep(450);ov.remove();
+  say(p,`<span class="dice">${label} → <b>${n}</b></span>`);return n;
+}
+async function step(p,dir,n){
+  for(let k=0;k<n;k++){const nx=Math.max(0,Math.min(GOAL,p.pos+dir));if(nx===p.pos)break;p.pos=nx;placeTokens();await sleep(240);if(p.pos===GOAL)break}
+  renderHL();renderPlayers();
+}
 
 /* ---------- 進行 ---------- */
-const sleep = ms => new Promise(r=>setTimeout(r,ms));
-async function step(p, dir, n){
-  for(let k=0;k<n;k++){
-    let next = p.pos + dir;
-    if(next>GOAL){ next = GOAL; } if(next<0){ next = 0; }
-    p.pos = next; renderBoard(); await sleep(220);
-    if(p.pos===GOAL) break;
-  }
-}
-$("#rollBtn").onclick = async ()=>{
-  if(busy || finished) return; busy = true; $("#rollBtn").disabled = true;
-  const p = players[cur];
-  const die = $("#die"); die.classList.remove("roll"); void die.offsetWidth; die.classList.add("roll");
-  for(let k=0;k<8;k++){ die.textContent = 1+Math.floor(Math.random()*6); await sleep(60); }
-  const n = 1+Math.floor(Math.random()*6); die.textContent = n;
-  await sleep(250);
-  await step(p, 1, n);
-  await land(p);
+$("#rollBtn").onclick=async()=>{
+  if(busy||busyEnd())return;busy=true;render();
+  const p=players[cur];const n=await rollDie(p);
+  await step(p,1,n);await land(p);
+  busy=false;nextTurn();
 };
-function land(p){
-  return new Promise(resolve=>{
-    const s = SQUARES[p.pos];
-    if(p.pos===GOAL){
-      p.done = true;
-      showModal(`🎉 ${p.name} ゴール！`, s.text, ()=>{ finished = true; renderBoard(); renderTurn(); busy=false; resolve(); });
-      return;
+async function land(p){
+  const i=p.pos,e=SQ[i].e;
+  if(e.k==="goal"){await finish(p);return}
+  if(e.k==="start"||e.k==="none")return;
+  await cutin(`${p.name}：${SQ[i].name}のマス`,i,e);
+  say(p,`${esc(SQ[i].name)}のマス：${esc(effText(e))}`);
+  if(e.k==="fwd"){await step(p,1,e.n);if(p.pos===GOAL)await finish(p)}
+  else if(e.k==="back"){await step(p,-1,e.n)}
+  else if(e.k==="rest"){p.rest=e.n}
+  else if(e.k==="home"){p.pos=0;placeTokens();await sleep(300)}
+  else if(e.k==="dice"){const m=await rollDie(p,"1D6（追加）");await step(p,1,m);if(p.pos===GOAL)await finish(p)}
+  else if(e.k==="warp"){await warp(p,e.n);if(p.pos===GOAL)await finish(p)}
+}
+function warp(p,n){
+  return new Promise(res=>{
+    sys(`${p.name}：ワープ先のマスをタップしてください（光っているマス）`);
+    const hs=[];
+    for(let j=Math.max(0,p.pos-n);j<=Math.min(GOAL,p.pos+n);j++){
+      if(j===p.pos)continue;
+      const h=document.createElement("div");h.className="hl pick";setRect(h,SQ[j].r);h.title=SQ[j].name;
+      h.onclick=()=>{hs.forEach(x=>x.remove());p.pos=j;placeTokens();say(p,`${esc(SQ[j].name)}のマスへワープ`);res()};
+      $("#board").appendChild(h);hs.push(h);
     }
-    const title = `${p.name}：${p.pos}マス目`;
-    showModal(title, s.text, async ()=>{
-      let again = false;
-      if(s.type==="fwd"){ await step(p, 1, s.n||1); if(p.pos===GOAL){ busy=false; await land(p); return resolve(); } }
-      else if(s.type==="back"){ await step(p, -1, s.n||1); }
-      else if(s.type==="rest"){ p.rest = 1; }
-      else if(s.type==="again"){ again = true; }
-      nextTurn(again); busy=false; resolve();
-    });
   });
 }
-function nextTurn(again){
-  if(!again){
-    for(let k=0;k<players.length;k++){
-      cur = (cur+1) % players.length;
-      if(players[cur].rest>0){ players[cur].rest--; continue; }
-      break;
-    }
-  }
-  renderBoard(); renderTurn();
+async function finish(p){
+  if(p.done)return;p.done=true;finishOrder.push(players.indexOf(p));
+  await cutin(`🎉 ${p.name} ゴール！`,GOAL,null);
+  say(p,`<b>${finishOrder.length}位でゴール！</b>`);
 }
+function nextTurn(){
+  if(busyEnd()){sys("全員ゴールしました。おつかれさまでした！");render();return}
+  for(let k=0;k<players.length*12;k++){
+    cur=(cur+1)%players.length;const q=players[cur];
+    if(q.done)continue;
+    if(q.rest>0){q.rest--;sys(`${q.name}は休み（あと${q.rest}回）`);continue}
+    break;
+  }
+  render();
+}
+
+/* ---------- ドラッグ ---------- */
+function attachDrag(t,i){
+  t.addEventListener("pointerdown",ev=>{
+    if(busy)return;t.setPointerCapture(ev.pointerId);t.classList.add("drag");
+    const b=$("#board").getBoundingClientRect();
+    const move=e=>{t.style.left=(e.clientX-b.left)/b.width*100+"%";t.style.top=(e.clientY-b.top)/b.height*100+"%"};
+    const up=e=>{
+      t.releasePointerCapture(ev.pointerId);t.classList.remove("drag");t.removeEventListener("pointermove",move);t.removeEventListener("pointerup",up);
+      const x=(e.clientX-b.left)/b.width*BW,y=(e.clientY-b.top)/b.height*BH;
+      let best=0,bd=1e9;SQ.forEach((s,j)=>{const[cx,cy]=center(j);const d=(cx-x)**2+(cy-y)**2;if(d<bd){bd=d;best=j}});
+      const p=players[i];if(best!==p.pos){p.pos=best;say(p,`コマを「${esc(SQ[best].name)}」に動かしました`)}
+      render();
+    };
+    t.addEventListener("pointermove",move);t.addEventListener("pointerup",up);
+  });
+}
+
+/* ---------- 拡大 ---------- */
+function setZoom(z){zoom=Math.max(1,Math.min(3,z));$("#board").style.setProperty("--z",zoom)}
+$("#zIn").onclick=()=>setZoom(zoom+0.5);$("#zOut").onclick=()=>setZoom(zoom-0.5);
+
+if(innerWidth<820)setZoom(2);
 renderSetup();
 </script>
-</body>
-</html>
