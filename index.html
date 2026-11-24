@@ -156,17 +156,17 @@ button{font:inherit;cursor:pointer;border:0}
 
 /* ---------- 設定・結果 ---------- */
 .panel{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:radial-gradient(120% 80% at 50% 30%,#33405acc,#1b2230f2)}
-.card{width:min(420px,100%);max-width:calc(100vw - 32px);background:#fffaf0;border-radius:24px;padding:22px 20px;box-shadow:0 20px 50px #0008;max-height:100%;overflow:auto}
+.card{width:min(420px,100%);max-width:calc(100vw - 32px);background:#fffaf0;border-radius:24px;padding:22px 20px;box-shadow:0 20px 50px #0008;max-height:100%;overflow-x:hidden;overflow-y:auto}
 .card h1{font-family:"Yusei Magic",sans-serif;font-weight:400;font-size:28px;margin:0;text-align:center;color:#4a2e08;line-height:1.25}
 .card h1 small{display:block;font-size:14px;color:#9a7a3a;font-family:"Zen Maru Gothic",sans-serif;font-weight:900;margin-bottom:4px}
 .card .lbl{font-weight:900;font-size:13px;color:#7a6a50;margin:16px 0 6px}
 .seg{display:flex;gap:6px}
 .seg button{flex:1;height:44px;border-radius:12px;background:#f1e6c8;font-weight:900;font-size:16px;color:#5a4420}
 .seg button.on{background:#f2bf3c;box-shadow:inset 0 -3px 0 #a8721c}
-.names{display:grid;gap:8px}
-.names label{display:flex;align-items:center;gap:8px}
+.names{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.names label{display:flex;align-items:center;gap:8px;min-width:0}
 .names i{width:18px;height:18px;border-radius:50%;flex:none}
-.names input{flex:1;min-width:0;height:44px;border-radius:12px;border:2px solid #e6d7ae;padding:0 12px;font:inherit;font-size:16px;background:#fff;-webkit-user-select:text;user-select:text}
+.names input{flex:1 1 0;min-width:0;width:100%;height:44px;border-radius:12px;border:2px solid #e6d7ae;padding:0 12px;font:inherit;font-size:16px;background:#fff;-webkit-user-select:text;user-select:text}
 .go{display:block;width:100%;height:56px;margin-top:18px;border-radius:18px;font-size:19px;font-weight:900;color:#4a2e08;
   background:linear-gradient(180deg,#ffe98f,#f2bf3c);box-shadow:0 5px 0 #a8721c}
 #setup{display:block;overflow:auto}
@@ -662,7 +662,7 @@ function renderSetup(){
   const n=$("#names");const old=[...n.querySelectorAll("input")].map(i=>i.value);n.innerHTML="";
   for(let i=0;i<count;i++){
     const l=document.createElement("label");l.innerHTML=`<i style="background:${COLORS[i]}"></i>`;
-    const inp=document.createElement("input");inp.placeholder=`プレイヤー${i+1}`;inp.value=old[i]||"";inp.maxLength=8;
+    const inp=document.createElement("input");inp.placeholder=`プレイヤー${i+1}`;inp.value=old[i]||"";inp.maxLength=8;inp.size=1;
     l.appendChild(inp);n.appendChild(l);
   }
 }
