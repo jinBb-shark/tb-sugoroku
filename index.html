@@ -18,12 +18,12 @@
 }
 [hidden]{display:none!important}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--uitext);
+html,body{margin:0;width:100%;height:100%;overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--bg);color:var(--uitext);
   font-family:"Zen Maru Gothic",system-ui,sans-serif;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 button{font:inherit;cursor:pointer;border:0}
 
 /* ---------- 3D の盤 ---------- */
-#view{position:fixed;inset:0;overflow:hidden;touch-action:none;perspective:1000px;
+#view{position:fixed;inset:0;overflow:hidden;contain:strict;touch-action:none;perspective:1000px;
   background:radial-gradient(120% 80% at 50% 40%,#33405a 0%,#1b2230 70%)}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #board{position:relative;background:var(--paper);border-radius:28px;
@@ -54,7 +54,7 @@ button{font:inherit;cursor:pointer;border:0}
 @keyframes pick{50%{filter:brightness(1.18) saturate(1.3)}}
 
 /* ---------- コマ ---------- */
-#tokens{position:fixed;inset:0;pointer-events:none}
+#tokens{position:fixed;inset:0;pointer-events:none;overflow:hidden;contain:strict}
 .tok{position:absolute;left:0;top:0;width:40px;height:56px;transform-origin:50% 100%}
 .tok .shadow{position:absolute;left:4px;bottom:-5px;width:32px;height:10px;border-radius:50%;background:#0006;filter:blur(1px)}
 .tok .body{position:absolute;left:0;top:0;width:40px;height:52px}
@@ -124,7 +124,7 @@ button{font:inherit;cursor:pointer;border:0}
 .dlabel{color:#fff;font-weight:900;font-size:15px;opacity:.9}
 
 /* ---------- 新幹線 ---------- */
-#train{position:fixed;inset:0;z-index:25;pointer-events:none;overflow:hidden;background:linear-gradient(#0000 30%,#ffffff22 50%,#0000 70%)}
+#train{position:fixed;inset:0;contain:strict;z-index:25;pointer-events:none;overflow:hidden;background:linear-gradient(#0000 30%,#ffffff22 50%,#0000 70%)}
 #train .car{position:absolute;top:calc(50% - 60px);left:0;width:900px;height:110px;transform:translateX(110vw);filter:drop-shadow(0 8px 10px #0006)}
 #train.run .car{animation:train 1.35s cubic-bezier(.45,.05,.55,.95) forwards}
 @keyframes train{from{transform:translateX(110vw)}to{transform:translateX(-1000px)}}
@@ -156,7 +156,7 @@ button{font:inherit;cursor:pointer;border:0}
 
 /* ---------- 設定・結果 ---------- */
 .panel{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:radial-gradient(120% 80% at 50% 30%,#33405acc,#1b2230f2)}
-.card{width:min(420px,100%);background:#fffaf0;border-radius:24px;padding:22px 20px;box-shadow:0 20px 50px #0008;max-height:100%;overflow:auto}
+.card{width:min(420px,100%);max-width:calc(100vw - 32px);background:#fffaf0;border-radius:24px;padding:22px 20px;box-shadow:0 20px 50px #0008;max-height:100%;overflow:auto}
 .card h1{font-family:"Yusei Magic",sans-serif;font-weight:400;font-size:28px;margin:0;text-align:center;color:#4a2e08;line-height:1.25}
 .card h1 small{display:block;font-size:14px;color:#9a7a3a;font-family:"Zen Maru Gothic",sans-serif;font-weight:900;margin-bottom:4px}
 .card .lbl{font-weight:900;font-size:13px;color:#7a6a50;margin:16px 0 6px}
