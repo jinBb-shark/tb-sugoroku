@@ -49,6 +49,7 @@ button{font:inherit;cursor:pointer;border:0}
 .goal .big{font-size:36px;color:#b8202e;text-shadow:0 2px 0 #fff8}
 .goal .tx{font-size:13px;font-weight:900;margin-top:6px}
 .cell.here{outline:4px solid #fff;outline-offset:2px;box-shadow:0 0 0 9px #ffcf3a99}
+.picking .cell:not(.pick),.picking .goal:not(.pick){filter:brightness(.45) saturate(.5)}
 .cell.pick,.goal.pick{animation:pick 1s ease-in-out infinite;outline:4px dashed var(--warp);outline-offset:2px}
 @keyframes pick{50%{filter:brightness(1.18) saturate(1.3)}}
 
@@ -74,13 +75,16 @@ button{font:inherit;cursor:pointer;border:0}
 #hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 10px 0;pointer-events:none}
 #turn{pointer-events:auto;display:flex;align-items:center;gap:8px;margin:0 auto;max-width:480px;background:#fffdf6ee;
   border-radius:16px;padding:8px 12px;box-shadow:0 4px 14px #0004}
-#turn .tn{font-size:12px;color:#7a6a50;font-weight:700;margin-left:4px}
-#quit{flex:none;height:32px;padding:0 10px;border-radius:10px;background:#efe4c6;color:#6a4a1a;font-weight:900;font-size:12px}
+#turn .tn{display:block;font-size:11px;color:#7a6a50;font-weight:700}
+#quit{flex:none;height:34px;padding:0 10px;border-radius:10px;background:#fff;color:#b8202e;border:2px solid #b8202e;font-weight:900;font-size:12px;white-space:nowrap}
+#quit:active{background:#fde8e8}
 #quit:disabled{opacity:.4}
 .sheet .btns{display:flex;gap:10px}.sheet .btns .ok{flex:1}.sheet .ok.sub{background:#efe4c6;box-shadow:0 4px 0 #cdbb8e}
 #turn .dot{width:16px;height:16px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1px #0002}
-#turn .who{font-weight:900;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#turn .where{margin-left:auto;font-size:12px;color:#7a6a50;text-align:right;line-height:1.25;white-space:nowrap}
+#turn .who{flex:1;min-width:0;font-weight:900;font-size:16px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#turn .where{text-align:right;line-height:1.2;white-space:nowrap}
+#turn .where small{display:block;font-size:10px;font-weight:500;color:#9a8a6c}
+#turn .where b{font-size:15px;font-weight:900;color:#2b2216}
 #chips{display:flex;gap:6px;justify-content:center;margin:6px auto 0;max-width:480px;flex-wrap:wrap}
 .chip{display:flex;align-items:center;gap:4px;background:#ffffffcc;border-radius:999px;padding:2px 9px 2px 4px;font-size:11.5px;font-weight:700}
 .chip i{width:12px;height:12px;border-radius:50%;display:block}
@@ -119,6 +123,20 @@ button{font:inherit;cursor:pointer;border:0}
 .dres.on{opacity:1;transform:none}
 .dlabel{color:#fff;font-weight:900;font-size:15px;opacity:.9}
 
+/* ---------- 新幹線 ---------- */
+#train{position:fixed;inset:0;z-index:25;pointer-events:none;overflow:hidden;background:linear-gradient(#0000 30%,#ffffff22 50%,#0000 70%)}
+#train .car{position:absolute;top:calc(50% - 60px);left:0;width:900px;height:110px;transform:translateX(110vw);filter:drop-shadow(0 8px 10px #0006)}
+#train.run .car{animation:train 1.35s cubic-bezier(.45,.05,.55,.95) forwards}
+@keyframes train{from{transform:translateX(110vw)}to{transform:translateX(-1000px)}}
+#train .lines i{position:absolute;left:0;height:3px;width:40vw;background:#fff;border-radius:3px;opacity:0}
+#train .lines i:nth-child(1){top:38%}#train .lines i:nth-child(2){top:44%;width:25vw}#train .lines i:nth-child(3){top:60%}#train .lines i:nth-child(4){top:64%;width:30vw}#train .lines i:nth-child(5){top:35%;width:20vw}
+#train.run .lines i{animation:line .5s linear 3}
+#train.run .lines i:nth-child(2n){animation-delay:.15s}
+@keyframes line{from{transform:translateX(110vw);opacity:.8}to{transform:translateX(-50vw);opacity:.8}}
+#train .tlabel{position:absolute;left:0;right:0;top:calc(50% + 70px);text-align:center;font-family:"Yusei Magic",sans-serif;font-size:30px;color:#fff;text-shadow:0 3px 0 #1f5fbf,0 0 12px #0008;opacity:0}
+#train.run .tlabel{animation:tl 1.4s ease forwards}
+@keyframes tl{0%,15%{opacity:0;transform:scale(.6)}30%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
+
 /* ---------- シート ---------- */
 .ov{position:fixed;inset:0;background:#0007;z-index:30;display:flex;align-items:flex-end;justify-content:center}
 .sheet{width:min(520px,100%);background:#fffaf0;border-radius:24px 24px 0 0;padding:18px 20px calc(env(safe-area-inset-bottom) + 18px);
@@ -132,6 +150,7 @@ button{font:inherit;cursor:pointer;border:0}
 .sheet .badge{font-size:16px;padding:5px 12px;border-radius:10px}
 .sheet .ok{display:block;width:100%;height:54px;margin-top:16px;border-radius:16px;font-size:18px;font-weight:900;color:#4a2e08;
   background:linear-gradient(180deg,#ffe98f,#f2bf3c);box-shadow:0 4px 0 #a8721c}
+.sheet .zzbig{font-size:44px;animation:zz 1.8s ease-in-out infinite}
 .sheet.goalsheet{text-align:center}
 .sheet.goalsheet .big{font-family:"Yusei Magic",sans-serif;font-size:40px;color:#b8202e}
 
@@ -176,7 +195,7 @@ button{font:inherit;cursor:pointer;border:0}
 <div id="tokens"></div>
 
 <div id="hud">
-  <div id="turn"><span class="dot"></span><span class="who"></span><span class="where"></span><button id="quit" title="ゲームを終わる">おわる</button></div>
+  <div id="turn"><span class="dot"></span><span class="who"></span><span class="where"></span><button id="quit" title="ゲームを終了">ゲームを終了</button></div>
   <div id="chips"></div>
 </div>
 
@@ -201,6 +220,17 @@ button{font:inherit;cursor:pointer;border:0}
   </div>
 </div>
 
+<div id="train" hidden>
+  <div class="lines"><i></i><i></i><i></i><i></i><i></i></div>
+  <svg class="car" viewBox="0 0 900 110" aria-hidden="true">
+    <path d="M900,14 L250,14 C150,14 60,40 4,84 L4,96 L900,96 Z" fill="#fbfbfd" stroke="#9aa3b5" stroke-width="3"/>
+    <path d="M30,74 C80,62 130,58 250,58 L900,58 L900,68 L250,68 C150,68 90,72 22,86 Z" fill="#1f5fbf"/>
+    <path d="M130,40 C165,26 205,22 245,22 L245,42 L120,46 Z" fill="#2b3446"/>
+    <g fill="#2b3446"><rect x="290" y="26" width="34" height="20" rx="5"/><rect x="342" y="26" width="34" height="20" rx="5"/><rect x="394" y="26" width="34" height="20" rx="5"/><rect x="446" y="26" width="34" height="20" rx="5"/><rect x="498" y="26" width="34" height="20" rx="5"/><rect x="550" y="26" width="34" height="20" rx="5"/><rect x="602" y="26" width="34" height="20" rx="5"/><rect x="654" y="26" width="34" height="20" rx="5"/><rect x="706" y="26" width="34" height="20" rx="5"/><rect x="758" y="26" width="34" height="20" rx="5"/><rect x="810" y="26" width="34" height="20" rx="5"/><rect x="862" y="26" width="34" height="20" rx="5"/></g>
+    <rect x="4" y="96" width="896" height="6" fill="#6c7486"/>
+  </svg>
+  <div class="tlabel">新幹線でワープ！</div>
+</div>
 <div class="ov" id="sheetOv" hidden><div class="sheet" id="sheet"></div></div>
 
 <div class="panel" id="setup"><div class="pw">
@@ -215,11 +245,8 @@ button{font:inherit;cursor:pointer;border:0}
   <div class="card howto">
     <div class="ht">あそびかた</div>
     <ul>
-      <li><b>🎲</b><span><em>サイコロをふる</em>下のボタンでサイコロ。出た目だけコマがすすみます</span></li>
-      <li><b>👆</b><span><em>ドラッグ</em>盤面を動かす</span></li>
       <li><b>🤏</b><span><em>2本指</em>ズーム・回転・傾き</span></li>
       <li><b>📖</b><span><em>マスをタップ</em>そのマスのエピソードが読めます</span></li>
-      <li><b>🎥</b><span><em>右のボタン</em>真上視点／全体を見る／自分のコマへ</span></li>
     </ul>
   </div>
 </div></div>
@@ -468,8 +495,8 @@ function render(){
   const end=players.every(p=>p.done);
   const p=players[cur];
   $("#turn .dot").style.background=end?"#999":p.color;
-  $("#turn .who").innerHTML=end?"ゲーム終了！":players.length===1?`${esc(p.name)} <small class="tn">${p.turns+1}ターン目</small>`:`${esc(p.name)} の番`;
-  $("#turn .where").innerHTML=end?"":`いまのマス<br><b>${posLabel(p.pos)}</b>`;
+  $("#turn .who").innerHTML=end?"ゲーム終了！":`${esc(p.name)}${players.length>1?" の番":""} <small class="tn">${p.turns+(busy?0:1)}ターン目</small>`;
+  $("#turn .where").innerHTML=end?"":`<small>いまのマス</small><b>${posLabel(p.pos)}</b>`;
   $("#chips").innerHTML=players.length<2?"":players.map((q,i)=>`<span class="chip${i===cur&&!end?" now":""}${q.done?" out":""}"><i style="background:${q.color}"></i>${esc(q.name)}<em>${q.done?"🏁"+(finishOrder.indexOf(i)+1)+"位":q.rest?"お休み"+q.rest:q.pos===0?"START":q.pos+"マス目"}</em></span>`).join("");
   $("#roll").disabled=busy||end;$("#tokens").classList.toggle("busy",busy);$("#roll").style.setProperty("--pc",end?"#fff":p.color);$("#roll .who").textContent=end?"":"●";$("#quit").disabled=busy;
   players.forEach((q,i)=>q.el.classList.toggle("now",i===cur&&!end));
@@ -553,6 +580,15 @@ async function land(p){
   else if(e.k==="dice"){const m=await rollDice(`${p.name}：もう一度サイコロ`);toast(`${nm}：${m}マスすすむ`);await step(p,1,m);if(p.pos===GOAL)await finish(p)}
   else if(e.k==="warp"){await warp(p,e.n);if(p.pos===GOAL)await finish(p)}
 }
+/* 新幹線でワープ：画面を新幹線が横切る間にコマを移す */
+async function shinkansen(p,j){
+  follow=true;focusOn(j,playZoom());camT.tilt=mode3d?TILT3D:0;
+  const ov=$("#train");ov.hidden=false;ov.classList.remove("run");void ov.offsetWidth;ov.classList.add("run");
+  await sleep(650);
+  p.pos=j;const[x,y]=center(j);p.disp=[x,y];p.hop=0;p.from=null;
+  Object.assign(cam,{fx:camT.fx,fy:camT.fy,z:camT.z,tilt:camT.tilt,yaw:camT.yaw});render();
+  await sleep(750);ov.hidden=true;ov.classList.remove("run");
+}
 function warp(p,n){
   return new Promise(res=>{
     const lo=Math.max(0,p.pos-n),hi=Math.min(GOAL,p.pos+n);
@@ -561,31 +597,47 @@ function warp(p,n){
     let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9;for(let j=lo;j<=hi;j++){const r=R[j];x1=Math.min(x1,r[0]);y1=Math.min(y1,r[1]);x2=Math.max(x2,r[0]+r[2]);y2=Math.max(y2,r[1]+r[3])}
     const[w,h]=vsize();camT.fx=(x1+x2)/2;camT.fy=(y1+y2)/2;camT.tilt=0;camT.yaw=0;
     camT.z=Math.min(playZoom(),(w-70)/(x2-x1+40),(h-230)/(y2-y1+40));follow=false;
+    $("#board").classList.add("picking");
     toast("ワープ先のマスをタップしてね（光っているマス）",60000);
     picking=j=>{
       if(j<lo||j>hi||j===p.pos)return;
-      els.forEach(el=>el.classList.remove("pick"));picking=null;
-      p.pos=j;startHop(p);follow=true;focusOn(j,playZoom());camT.tilt=mode3d?TILT3D:0;render();
-      toast(`${esc(p.name)}：${j}「${esc(SQ[j].name)}」へワープ！`);setTimeout(res,600);
+      els.forEach(el=>el.classList.remove("pick"));picking=null;$("#board").classList.remove("picking");
+      $("#toast").classList.remove("on");
+      shinkansen(p,j).then(()=>{toast(`${esc(p.name)}：${posLabel(j)} へワープ！`);setTimeout(res,500)});
     };
   });
 }
 async function finish(p){
   if(p.done)return;p.done=true;finishOrder.push(players.indexOf(p));render();
-  await sheet(GOAL,`<span style="color:${p.color}">●</span> ${esc(p.name)} が ${finishOrder.length}位でゴール！`,"やったー！");
+  await sheet(GOAL,`<span style="color:${p.color}">●</span> ${esc(p.name)} が ${finishOrder.length}位でゴール！`,"ご来場ありがとうございました！");
 }
-function nextTurn(){
+async function nextTurn(){
   if(players.every(p=>p.done)){render();showResult();return}
-  const msgs=[];
+  busy=true;
   for(let k=0;k<players.length*12;k++){
     cur=(cur+1)%players.length;const q=players[cur];
     if(q.done)continue;
-    if(q.rest>0){q.rest--;q.turns++;msgs.push(`${esc(q.name)}はお休み（あと${q.rest}回）`);continue}
+    if(q.rest>0){
+      // お休みの人のコマへカメラを移して、休み中であることを見せてから次へ
+      q.turns++;follow=true;focusOn(q.pos,playZoom());camT.tilt=mode3d?TILT3D:0;render();
+      await sleep(500);
+      const left=q.rest-1;
+      await notice(`<div class="zzbig">💤</div><div class="tx" style="font-size:20px"><span style="color:${q.color}">●</span> ${esc(q.name)} はお休み中</div><div class="who">${left?`あと ${left}回 休み`:"次の番から動けます"}</div>`,"OK");
+      q.rest=left;render();
+      continue;
+    }
     break;
   }
-  if(msgs.length)toast(msgs.slice(-2).join("<br>"),2600);
-  render();
+  busy=false;render();
   if(follow){focusOn(players[cur].pos,playZoom());camT.tilt=mode3d?TILT3D:0}
+}
+function notice(html,ok){
+  return new Promise(res=>{
+    $("#sheet").className="sheet goalsheet";
+    $("#sheet").innerHTML=html+`<button class="ok">${ok}</button>`;
+    $("#sheetOv").hidden=false;
+    $("#sheet .ok").onclick=()=>{$("#sheetOv").hidden=true;res()};
+  });
 }
 function showResult(){
   const solo=players.length===1;
@@ -623,11 +675,18 @@ function startGame(){
     $("#tokens").appendChild(el);
     return{name,color:COLORS[i],pos:0,rest:0,done:false,el,disp:null,hop:0,turns:0};
   });
+  // 順番はランダムに決める（色と名前はそのまま）
+  for(let i=players.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[players[i],players[j]]=[players[j],players[i]]}
   cur=0;finishOrder=[];busy=false;picking=null;
   $("#setup").hidden=true;$("#result").hidden=true;
   showAll();Object.assign(cam,camT);follow=true;render();
   setTimeout(()=>{focusOn(0,playZoom());camT.tilt=mode3d?TILT3D:0},900);   // 全体を見せてからSTARTへ寄る
-  toast(`${esc(players[0].name)} の番。サイコロをふってね！`,2600);
+  if(players.length>1){
+    $("#sheet").className="sheet goalsheet";
+    $("#sheet").innerHTML=`<div class="tx" style="font-size:20px">順番が決まりました！</div><ol class="rank">${players.map((q,k)=>`<li><span>${k+1}番</span><i style="background:${q.color}"></i>${esc(q.name)}</li>`).join("")}</ol><button class="ok">スタート！</button>`;
+    $("#sheetOv").hidden=false;
+    $("#sheet .ok").onclick=()=>{$("#sheetOv").hidden=true;toast(`${esc(players[0].name)} の番。サイコロをふってね！`,2600)};
+  }else toast(`${esc(players[0].name)} の番。サイコロをふってね！`,2600);
 }
 $("#startBtn").onclick=startGame;
 $("#quit").onclick=()=>{
