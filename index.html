@@ -60,6 +60,13 @@ button{font:inherit;cursor:pointer;border:0}
 .tok .head{position:absolute;left:3px;top:0;width:34px;height:34px;border-radius:50%;border:3px solid #fff;
   display:grid;place-items:center;color:#fff;font-weight:900;font-size:16px;box-shadow:0 3px 6px #0005}
 .tok .foot{position:absolute;left:9px;top:30px;width:22px;height:20px;clip-path:polygon(25% 0,75% 0,100% 100%,0 100%);opacity:.9}
+.tok .zz{position:absolute;left:24px;top:-22px;font-size:18px;display:none;white-space:nowrap;animation:zz 1.8s ease-in-out infinite}
+.tok .zz span{font-size:10px;font-weight:900;color:#fff;background:var(--rest);border-radius:999px;padding:1px 5px;margin-left:1px;vertical-align:4px}
+.tok.resting .zz{display:block}
+.tok.resting .head{filter:grayscale(.6) brightness(.85);box-shadow:0 0 0 4px #b89be6,0 3px 6px #0005;animation:none}
+.tok.resting .foot{filter:grayscale(.6)}
+@keyframes zz{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-6px) rotate(6deg)}}
+.busy .tok.now .head{animation:none!important}
 .tok.now .head{animation:bob 1.2s ease-in-out infinite;box-shadow:0 0 0 4px #ffd84a,0 3px 8px #0006}
 @keyframes bob{50%{transform:translateY(-4px)}}
 
@@ -67,12 +74,17 @@ button{font:inherit;cursor:pointer;border:0}
 #hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 10px 0;pointer-events:none}
 #turn{pointer-events:auto;display:flex;align-items:center;gap:8px;margin:0 auto;max-width:480px;background:#fffdf6ee;
   border-radius:16px;padding:8px 12px;box-shadow:0 4px 14px #0004}
+#turn .tn{font-size:12px;color:#7a6a50;font-weight:700;margin-left:4px}
+#quit{flex:none;height:32px;padding:0 10px;border-radius:10px;background:#efe4c6;color:#6a4a1a;font-weight:900;font-size:12px}
+#quit:disabled{opacity:.4}
+.sheet .btns{display:flex;gap:10px}.sheet .btns .ok{flex:1}.sheet .ok.sub{background:#efe4c6;box-shadow:0 4px 0 #cdbb8e}
 #turn .dot{width:16px;height:16px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1px #0002}
 #turn .who{font-weight:900;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #turn .where{margin-left:auto;font-size:12px;color:#7a6a50;text-align:right;line-height:1.25;white-space:nowrap}
 #chips{display:flex;gap:6px;justify-content:center;margin:6px auto 0;max-width:480px;flex-wrap:wrap}
 .chip{display:flex;align-items:center;gap:4px;background:#ffffffcc;border-radius:999px;padding:2px 9px 2px 4px;font-size:11.5px;font-weight:700}
 .chip i{width:12px;height:12px;border-radius:50%;display:block}
+.chip em{font-style:normal;font-size:10.5px;background:#0000000f;border-radius:999px;padding:0 6px;margin-left:2px;color:#6a5a40}
 .chip.now{background:#ffe680;box-shadow:0 0 0 2px #fff}
 .chip.out{opacity:.6}
 #tools{position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
@@ -83,10 +95,11 @@ button{font:inherit;cursor:pointer;border:0}
 #toast{pointer-events:none;background:#1b2230e6;color:#fff;border-radius:12px;padding:8px 14px;font-size:14px;font-weight:700;max-width:440px;text-align:center;
   opacity:0;transform:translateY(8px);transition:.25s}
 #toast.on{opacity:1;transform:none}
-#roll{pointer-events:auto;width:min(440px,100%);height:62px;border-radius:20px;font-size:20px;font-weight:900;color:#4a2e08;
+#roll{pointer-events:auto;width:min(440px,100%);height:62px;border-radius:20px;border:5px solid var(--pc,#fff);transition:border-color .3s;font-size:20px;font-weight:900;color:#4a2e08;
   background:linear-gradient(180deg,#ffe98f,#f2bf3c);box-shadow:0 5px 0 #a8721c,0 10px 24px #0006;display:flex;align-items:center;justify-content:center;gap:10px}
 #roll:active{transform:translateY(3px);box-shadow:0 2px 0 #a8721c,0 6px 14px #0006}
 #roll:disabled{filter:grayscale(.7) brightness(.85);box-shadow:0 5px 0 #6c5a3c}
+#roll .who{color:var(--pc);font-size:15px;margin-right:-4px}
 #roll .mini{width:30px;height:30px;border-radius:8px;background:#fff;box-shadow:inset 0 -2px 0 #0002;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:4px}
 #roll .mini b{border-radius:50%;background:#c8202e;margin:1px}
 #roll .mini b.x{visibility:hidden}
@@ -137,10 +150,23 @@ button{font:inherit;cursor:pointer;border:0}
 .names input{flex:1;min-width:0;height:44px;border-radius:12px;border:2px solid #e6d7ae;padding:0 12px;font:inherit;font-size:16px;background:#fff;-webkit-user-select:text;user-select:text}
 .go{display:block;width:100%;height:56px;margin-top:18px;border-radius:18px;font-size:19px;font-weight:900;color:#4a2e08;
   background:linear-gradient(180deg,#ffe98f,#f2bf3c);box-shadow:0 5px 0 #a8721c}
-.howto{font-size:12px;color:#7a6a50;margin-top:14px;line-height:1.6}
+#setup{display:block;overflow:auto}
+.pw{min-height:100%;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:14px}
+.card.howto{padding:16px 18px;background:#fffaf0e6}
+.howto .ht{font-family:"Yusei Magic",sans-serif;font-size:18px;color:#4a2e08;text-align:center;margin-bottom:8px}
+.howto ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.howto li{display:flex;align-items:center;gap:10px;background:#f6ecd0;border-radius:12px;padding:8px 10px;font-size:12.5px;color:#5a4a30;line-height:1.4}
+.howto li b{font-size:22px;width:30px;text-align:center;flex:none}
+.howto li em{display:block;font-style:normal;font-weight:900;color:#3b2a10;font-size:13.5px}
+@media (min-width:880px){.card.howto{width:300px;align-self:stretch;display:flex;flex-direction:column;justify-content:center}}
 .rank{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
 .rank li{display:flex;align-items:center;gap:10px;background:#f6ecd0;border-radius:12px;padding:10px 12px;font-weight:900;font-size:17px}
 .rank li span{font-family:"Yusei Magic",sans-serif;color:#b8202e;width:2.2em}
+.rank li small{margin-left:auto;font-size:13px;color:#7a6a50}
+#solo{text-align:center;margin-top:12px}
+#solo .score{font-weight:900;font-size:18px;color:#4a2e08}
+#solo .score b{font-family:"Yusei Magic",sans-serif;font-size:54px;color:#b8202e;margin-right:4px}
+#solo .rec{font-size:13px;color:#7a6a50;font-weight:700;margin-top:2px}
 .rank li i{width:16px;height:16px;border-radius:50%}
 </style>
 </head>
@@ -150,7 +176,7 @@ button{font:inherit;cursor:pointer;border:0}
 <div id="tokens"></div>
 
 <div id="hud">
-  <div id="turn"><span class="dot"></span><span class="who"></span><span class="where"></span></div>
+  <div id="turn"><span class="dot"></span><span class="who"></span><span class="where"></span><button id="quit" title="ゲームを終わる">おわる</button></div>
   <div id="chips"></div>
 </div>
 
@@ -164,7 +190,7 @@ button{font:inherit;cursor:pointer;border:0}
 
 <div id="bottom">
   <div id="toast"></div>
-  <button id="roll" disabled><span class="mini"><b></b><b class="x"></b><b></b><b class="x"></b><b></b><b class="x"></b><b></b><b class="x"></b><b></b></span>サイコロをふる</button>
+  <button id="roll" disabled><span class="mini"><b></b><b class="x"></b><b></b><b class="x"></b><b></b><b class="x"></b><b></b><b class="x"></b><b></b></span><span class="who"></span>サイコロをふる</button>
 </div>
 
 <div id="diceOv" hidden>
@@ -177,7 +203,7 @@ button{font:inherit;cursor:pointer;border:0}
 
 <div class="ov" id="sheetOv" hidden><div class="sheet" id="sheet"></div></div>
 
-<div class="panel" id="setup">
+<div class="panel" id="setup"><div class="pw">
   <div class="card">
     <h1><small>第59回定期演奏会</small>トロンボーンパート<br>すごろく</h1>
     <div class="lbl">あそぶ人数</div>
@@ -185,13 +211,23 @@ button{font:inherit;cursor:pointer;border:0}
     <div class="lbl">なまえ（空欄でもOK）</div>
     <div class="names" id="names"></div>
     <button class="go" id="startBtn">はじめる！</button>
-    <div class="howto">ドラッグで盤面を動かす／2本指でズーム・回転・傾き<br>マスをタップすると内容が読めます</div>
   </div>
-</div>
+  <div class="card howto">
+    <div class="ht">あそびかた</div>
+    <ul>
+      <li><b>🎲</b><span><em>サイコロをふる</em>下のボタンでサイコロ。出た目だけコマがすすみます</span></li>
+      <li><b>👆</b><span><em>ドラッグ</em>盤面を動かす</span></li>
+      <li><b>🤏</b><span><em>2本指</em>ズーム・回転・傾き</span></li>
+      <li><b>📖</b><span><em>マスをタップ</em>そのマスのエピソードが読めます</span></li>
+      <li><b>🎥</b><span><em>右のボタン</em>真上視点／全体を見る／自分のコマへ</span></li>
+    </ul>
+  </div>
+</div></div>
 
 <div class="panel" id="result" hidden>
   <div class="card">
-    <h1><small>第59回定期演奏会</small>全員ゴール！</h1>
+    <h1><small>第59回定期演奏会</small><span id="resTitle">全員ゴール！</span></h1>
+    <div id="solo" hidden></div>
     <ol class="rank" id="rank"></ol>
     <button class="go" id="againBtn">もう一度あそぶ</button>
   </div>
@@ -246,7 +282,7 @@ const SQUARES=[
  {e:{k:"none"}},
  {name:"GOAL",text:"第59回定期演奏会で演奏する！",e:{k:"goal"}},
 ];
-SQUARES.forEach(s=>{if(s.e.k==="none"){s.name="なにもないマス";s.text="なにも起きない。ひと休み。"}});
+SQUARES.forEach(s=>{if(s.e.k==="none"){s.name="";s.text=""}});
 
 /* ---------- 盤面レイアウト（トロンボーンの形）----------
    A列: START〜10 を上から下（スライドの片側）
@@ -358,6 +394,8 @@ function tokenTargets(){
     ids.forEach((id,k)=>{const o=(k-(ids.length-1)/2);out[id]=[cx+o*34,cy]})});
   return out;
 }
+const HOP=280;
+function startHop(p){p.from=p.disp?[...p.disp]:null;p.hop=performance.now()}
 function frame(now){
   const k=.14;
   for(const key of["fx","fy","z","tilt","yaw"])cam[key]+=(camT[key]-cam[key])*k;
@@ -367,9 +405,18 @@ function frame(now){
   players.forEach((p,i)=>{
     const el=p.el,T=tg[i];
     if(!p.disp)p.disp=[...T];
-    p.disp[0]+=(T[0]-p.disp[0])*.32;p.disp[1]+=(T[1]-p.disp[1])*.32;
+    // 1回跳ねる＝1マス：跳ねている間に前のマスから次のマスへ移る
+    let hop=0;
+    if(p.hop){
+      if(!p.from)p.from=[...p.disp];
+      const u=Math.min(1,(now-p.hop)/HOP);
+      hop=Math.sin(Math.PI*u)*22;
+      const e=u<.5?2*u*u:1-2*(1-u)*(1-u);
+      p.disp=[p.from[0]+(T[0]-p.from[0])*e,p.from[1]+(T[1]-p.from[1])*e];
+      if(u>=1){p.hop=0;p.from=null}
+    }else{p.disp[0]+=(T[0]-p.disp[0])*.3;p.disp[1]+=(T[1]-p.disp[1])*.3}
     const[sx,sy,s]=project(p.disp[0],p.disp[1]);
-    let hop=0;if(p.hop){const u=(now-p.hop)/260;if(u<1)hop=Math.sin(Math.PI*u)*22;else p.hop=0}
+    
     const sc=Math.max(.45,Math.min(1.6,s*cam.z*1.05));
     el.style.transform=`translate(${sx-20}px,${sy-56-hop*sc}px) scale(${sc})`;
     el.style.zIndex=Math.round(sy);
@@ -416,15 +463,17 @@ $("#bMe").onclick=()=>{follow=true;if(players[cur]){focusOn(players[cur].pos,pla
 /* ---------- 表示 ---------- */
 let toastTimer=0;
 function toast(t,ms=2200){const el=$("#toast");el.innerHTML=t;el.classList.add("on");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("on"),ms)}
+function posLabel(i){return i===0?"START":i===GOAL?"GOAL":isBlank(i)?`${i}マス目`:`${i}：${esc(SQ[i].name)}`}
 function render(){
   const end=players.every(p=>p.done);
   const p=players[cur];
   $("#turn .dot").style.background=end?"#999":p.color;
-  $("#turn .who").textContent=end?"ゲーム終了！":`${p.name} の番`;
-  $("#turn .where").innerHTML=end?"":`いまのマス<br><b>${p.pos===0?"START":p.pos+"："+esc(SQ[p.pos].name)}</b>`;
-  $("#chips").innerHTML=players.length<2?"":players.map((q,i)=>`<span class="chip${i===cur&&!end?" now":""}${q.done?" out":""}"><i style="background:${q.color}"></i>${esc(q.name)} ${q.done?"🏁"+(finishOrder.indexOf(i)+1)+"位":q.rest?"休"+q.rest:q.pos}</span>`).join("");
-  $("#roll").disabled=busy||end;
+  $("#turn .who").innerHTML=end?"ゲーム終了！":players.length===1?`${esc(p.name)} <small class="tn">${p.turns+1}ターン目</small>`:`${esc(p.name)} の番`;
+  $("#turn .where").innerHTML=end?"":`いまのマス<br><b>${posLabel(p.pos)}</b>`;
+  $("#chips").innerHTML=players.length<2?"":players.map((q,i)=>`<span class="chip${i===cur&&!end?" now":""}${q.done?" out":""}"><i style="background:${q.color}"></i>${esc(q.name)}<em>${q.done?"🏁"+(finishOrder.indexOf(i)+1)+"位":q.rest?"お休み"+q.rest:q.pos===0?"START":q.pos+"マス目"}</em></span>`).join("");
+  $("#roll").disabled=busy||end;$("#tokens").classList.toggle("busy",busy);$("#roll").style.setProperty("--pc",end?"#fff":p.color);$("#roll .who").textContent=end?"":"●";$("#quit").disabled=busy;
   players.forEach((q,i)=>q.el.classList.toggle("now",i===cur&&!end));
+  players.forEach(q=>{q.el.classList.toggle("resting",q.rest>0&&!q.done);q.el.querySelector(".zz span").textContent=q.rest>0?"休"+q.rest:""});
   document.querySelectorAll(".cell.here").forEach(c=>c.classList.remove("here"));
   if(!end&&p.pos!==GOAL)document.querySelector(`[data-i="${p.pos}"]`)?.classList.add("here");
 }
@@ -448,7 +497,7 @@ function sheet(i,who,okText="OK"){
 function onCell(i){
   if(performance.now()-lastDragEnd<250)return;
   if(picking){picking(i);return}
-  if(busy||!$("#sheetOv").hidden)return;
+  if(busy||!$("#sheetOv").hidden||isBlank(i))return;
   sheet(i,null,"とじる");
 }
 
@@ -479,12 +528,12 @@ function followMe(p){if(follow)focusOn(p.pos)}
 async function step(p,dir,n){
   for(let k=0;k<n;k++){
     const nx=Math.max(0,Math.min(GOAL,p.pos+dir));if(nx===p.pos)break;
-    p.pos=nx;p.hop=performance.now();followMe(p);render();await sleep(300);
+    p.pos=nx;startHop(p);followMe(p);render();await sleep(HOP+60);
     if(p.pos===GOAL)break;
   }
 }
 $("#roll").onclick=async()=>{
-  if(busy)return;busy=true;follow=true;render();
+  if(busy)return;busy=true;follow=true;players[cur].turns++;render();
   const p=players[cur];
   focusOn(p.pos,playZoom());camT.tilt=mode3d?TILT3D:0;
   const n=await rollDice(`${p.name} のサイコロ`);
@@ -495,12 +544,12 @@ $("#roll").onclick=async()=>{
 async function land(p){
   const i=p.pos,e=SQ[i].e,nm=esc(p.name);
   if(e.k==="goal"){await finish(p);return}
-  if(e.k==="start"||e.k==="none"){toast(`${nm}：${e.k==="none"?"なにもないマス":"START"}`);await sleep(300);return}
+  if(e.k==="start"||e.k==="none"){await sleep(300);return}
   await sheet(i,`<span style="color:${p.color}">●</span> ${nm} がとまった！`);
   if(e.k==="fwd"){toast(`${nm}：${e.n}マスすすむ`);await step(p,1,e.n);if(p.pos===GOAL)await finish(p)}
   else if(e.k==="back"){toast(`${nm}：${e.n}マスもどる`);await step(p,-1,e.n)}
   else if(e.k==="rest"){p.rest=e.n;toast(`${nm}：${e.n}回休み…`)}
-  else if(e.k==="home"){toast(`${nm}：ふりだしに戻る！`,2600);p.pos=0;p.hop=performance.now();followMe(p);render();await sleep(700)}
+  else if(e.k==="home"){toast(`${nm}：ふりだしに戻る！`,2600);p.pos=0;startHop(p);followMe(p);render();await sleep(700)}
   else if(e.k==="dice"){const m=await rollDice(`${p.name}：もう一度サイコロ`);toast(`${nm}：${m}マスすすむ`);await step(p,1,m);if(p.pos===GOAL)await finish(p)}
   else if(e.k==="warp"){await warp(p,e.n);if(p.pos===GOAL)await finish(p)}
 }
@@ -516,7 +565,7 @@ function warp(p,n){
     picking=j=>{
       if(j<lo||j>hi||j===p.pos)return;
       els.forEach(el=>el.classList.remove("pick"));picking=null;
-      p.pos=j;p.hop=performance.now();follow=true;focusOn(j,playZoom());camT.tilt=mode3d?TILT3D:0;render();
+      p.pos=j;startHop(p);follow=true;focusOn(j,playZoom());camT.tilt=mode3d?TILT3D:0;render();
       toast(`${esc(p.name)}：${j}「${esc(SQ[j].name)}」へワープ！`);setTimeout(res,600);
     };
   });
@@ -531,7 +580,7 @@ function nextTurn(){
   for(let k=0;k<players.length*12;k++){
     cur=(cur+1)%players.length;const q=players[cur];
     if(q.done)continue;
-    if(q.rest>0){q.rest--;msgs.push(`${esc(q.name)}はお休み（あと${q.rest}回）`);continue}
+    if(q.rest>0){q.rest--;q.turns++;msgs.push(`${esc(q.name)}はお休み（あと${q.rest}回）`);continue}
     break;
   }
   if(msgs.length)toast(msgs.slice(-2).join("<br>"),2600);
@@ -539,7 +588,18 @@ function nextTurn(){
   if(follow){focusOn(players[cur].pos,playZoom());camT.tilt=mode3d?TILT3D:0}
 }
 function showResult(){
-  $("#rank").innerHTML=finishOrder.map((i,k)=>`<li><span>${k+1}位</span><i style="background:${players[i].color}"></i>${esc(players[i].name)}</li>`).join("");
+  const solo=players.length===1;
+  $("#resTitle").textContent=solo?"ゴール！":"全員ゴール！";
+  $("#rank").innerHTML=finishOrder.map((i,k)=>`<li>${solo?"":`<span>${k+1}位</span>`}<i style="background:${players[i].color}"></i>${esc(players[i].name)}<small>${players[i].turns}ターン</small></li>`).join("");
+  let rec="";
+  if(solo){
+    const t=players[0].turns;let best=null;
+    try{best=+localStorage.getItem("tbSugorokuBest")||null}catch(e){}
+    if(!best||t<best){try{localStorage.setItem("tbSugorokuBest",t)}catch(e){}rec=best?`🎉 自己ベスト更新！（前回まで ${best}ターン）`:"この記録で友だちと競ってみよう！"}
+    else rec=`自己ベストは ${best}ターン`;
+    rec=`<div class="score"><b>${t}</b>ターンでゴール</div><div class="rec">${rec}</div>`;
+  }
+  $("#solo").innerHTML=rec;$("#solo").hidden=!solo;
   $("#result").hidden=false;
 }
 
@@ -559,9 +619,9 @@ function startGame(){
   players=[...document.querySelectorAll("#names input")].map((inp,i)=>{
     const typed=inp.value.trim(),name=typed||`プレイヤー${i+1}`;
     const el=document.createElement("div");el.className="tok";
-    el.innerHTML=`<div class="shadow"></div><div class="body"><div class="foot" style="background:${COLORS[i]}"></div><div class="head" style="background:${COLORS[i]}">${typed?esc([...typed][0]):i+1}</div></div>`;
+    el.innerHTML=`<div class="shadow"></div><div class="body"><div class="foot" style="background:${COLORS[i]}"></div><div class="zz">💤<span></span></div><div class="head" style="background:${COLORS[i]}">${typed?esc([...typed][0]):i+1}</div></div>`;
     $("#tokens").appendChild(el);
-    return{name,color:COLORS[i],pos:0,rest:0,done:false,el,disp:null,hop:0};
+    return{name,color:COLORS[i],pos:0,rest:0,done:false,el,disp:null,hop:0,turns:0};
   });
   cur=0;finishOrder=[];busy=false;picking=null;
   $("#setup").hidden=true;$("#result").hidden=true;
@@ -570,7 +630,22 @@ function startGame(){
   toast(`${esc(players[0].name)} の番。サイコロをふってね！`,2600);
 }
 $("#startBtn").onclick=startGame;
-$("#againBtn").onclick=()=>{$("#result").hidden=true;$("#setup").hidden=false};
+$("#quit").onclick=()=>{
+  if(busy)return;
+  $("#sheet").className="sheet goalsheet";
+  $("#sheet").innerHTML=`<div class="tx" style="font-size:20px">ゲームを終わりますか？</div><div class="who">いまの進み具合は消えて、最初の画面にもどります。</div><div class="btns"><button class="ok sub" id="qNo">つづける</button><button class="ok" id="qYes">終わる</button></div>`;
+  $("#sheetOv").hidden=false;
+  const close=()=>{$("#sheetOv").hidden=true;$("#sheetOv").onclick=null};
+  $("#qNo").onclick=close;$("#sheetOv").onclick=ev=>{if(ev.target.id==="sheetOv")close()};
+  $("#qYes").onclick=()=>{close();quitGame()};
+};
+function quitGame(){
+  picking=null;document.querySelectorAll(".pick").forEach(el=>el.classList.remove("pick"));
+  $("#toast").classList.remove("on");players=[];$("#tokens").innerHTML="";
+  document.querySelectorAll(".cell.here").forEach(c=>c.classList.remove("here"));
+  $("#result").hidden=true;$("#setup").hidden=false;showAll();
+}
+$("#againBtn").onclick=quitGame;
 
 buildBoard();renderSetup();
 showAll();Object.assign(cam,camT);
