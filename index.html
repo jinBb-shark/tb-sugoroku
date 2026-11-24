@@ -123,6 +123,9 @@ button{font:inherit;cursor:pointer;border:0}
 .dres.on{opacity:1;transform:none}
 .dlabel{color:#fff;font-weight:900;font-size:15px;opacity:.9}
 
+.boardonly #hud,.boardonly #bottom,.boardonly #bMe{display:none!important}
+.boardonly #tools{top:auto;bottom:calc(env(safe-area-inset-bottom) + 14px);transform:none}
+
 /* ---------- 新幹線 ---------- */
 #train{position:fixed;inset:0;contain:strict;z-index:25;pointer-events:none;overflow:hidden;background:linear-gradient(#0000 30%,#ffffff22 50%,#0000 70%)}
 #train .car{position:absolute;top:calc(50% - 60px);left:0;width:900px;height:110px;transform:translateX(110vw);filter:drop-shadow(0 8px 10px #0006)}
@@ -391,7 +394,8 @@ const cam={fx:BW/2,fy:BH/2,z:.5,tilt:0,yaw:0}, camT={...cam};
 let mode3d=true, follow=true;
 const TILT3D=42;
 function vsize(){return[innerWidth,innerHeight]}
-function anchor(){const[w,h]=vsize();return[w/2,h*0.56]}
+let anchorY=0.56;
+function anchor(){const[w,h]=vsize();return[w/2,h*anchorY]}
 function worldMatrix(c){
   const[ax,ay]=anchor();
   return `translate(${ax}px,${ay}px) rotateX(${c.tilt}deg) rotateZ(${c.yaw}deg) scale(${c.z}) translate(${-c.fx}px,${-c.fy}px)`;
@@ -708,6 +712,14 @@ $("#againBtn").onclick=quitGame;
 
 buildBoard();renderSetup();
 showAll();Object.assign(cam,camT);
+/* 盤だけモード（?board を付けて開く）：ゲームの画面を出さずに盤面だけ見せる */
+const BOARD_ONLY=window.BOARD_ONLY||new URLSearchParams(location.search).has("board");
+if(BOARD_ONLY){
+  document.body.classList.add("boardonly");anchorY=0.5;lastT="";$("#setup").hidden=true;
+  mode3d=false;$("#bView").textContent="立体";
+  const fit=()=>{const[w,h]=vsize();camT.fx=BW/2;camT.fy=BH/2;camT.z=Math.min((w-24)/BW,(h-24)/BH);camT.tilt=0;camT.yaw=0};
+  fit();Object.assign(cam,camT);$("#bAll").onclick=fit;addEventListener("resize",fit);
+}
 addEventListener("resize",()=>{lastT=""});
 requestAnimationFrame(frame);
 </script>
